@@ -21,7 +21,10 @@ def hash_args(args_dict, no_hash):
     return args_hash
 
 
-def main(args):
+def main(**kwargs):
+    max_num_epochs = kwargs['max_num_epochs']
+    del kwargs['max_num_epochs']
+
     num_reps = 10
 
     ### Smaller datasets.
@@ -36,8 +39,8 @@ def main(args):
         # GraphConvNet, dataset d, layers in [1:6], hidden dimension in {32,64,128}.
         acc, s_1, s_2 = gnn_evaluation(
             GraphConvNet, d, [1, 2, 3, 4, 5], [32, 64, 128],
-            max_num_epochs=args.max_num_epochs, batch_size=64, start_lr=0.01, num_repetitions=num_reps, all_std=True,
-            conv_repeat=args.conv_repeat, reduction=args.reduction, activation_fn=args.activation_fn, skip_connection=args.skip_connection
+            max_num_epochs=max_num_epochs, batch_size=64, start_lr=0.01, num_repetitions=num_reps, all_std=True,
+            **kwargs
         )
         print(d + " " + "GraphConvNet " + str(acc) + " " + str(s_1) + " " + str(s_2))
         results.append(d + " " + "GraphConvNet " + str(acc) + " " + str(s_1) + " " + str(s_2))
@@ -55,8 +58,8 @@ def main(args):
         # GraphConvNet, dataset d, 3 layers, hidden dimension in {64}.
         acc, s_1, s_2 = gnn_evaluation(
             GraphConvNet, d, [3], [64],
-            max_num_epochs=args.max_num_epochs, batch_size=64, start_lr=0.01, num_repetitions=num_reps, all_std=True,
-            conv_repeat=args.conv_repeat, reduction=args.reduction, activation_fn=args.activation_fn, skip_connection=args.skip_connection
+            max_num_epochs=max_num_epochs, batch_size=64, start_lr=0.01, num_repetitions=num_reps, all_std=True,
+            **kwargs
         )
         print(d + " " + "GraphConvNet " + str(acc) + " " + str(s_1) + " " + str(s_2))
         results.append(d + " " + "GraphConvNet " + str(acc) + " " + str(s_1) + " " + str(s_2))
@@ -71,9 +74,9 @@ def main(args):
 
         # GraphConvNet, dataset d, 3 layers, hidden dimension in {64}.
         acc, s_1, s_2 = gnn_evaluation(
-            GraphConvNet, d, [3], [64], max_num_epochs=args.max_num_epochs,
+            GraphConvNet, d, [3], [64], max_num_epochs=max_num_epochs,
             batch_size=64, start_lr=0.01, num_repetitions=num_reps, all_std=True,
-            conv_repeat=args.conv_repeat, reduction=args.reduction, activation_fn=args.activation_fn, skip_connection=args.skip_connection
+            **kwargs
         )
         print(d + " " + "GraphConvNet " + str(acc) + " " + str(s_1) + " " + str(s_2))
         results.append(d + " " + "GraphConvNet " + str(acc) + " " + str(s_1) + " " + str(s_2))
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument('--conv-repeat', type=int, default=2)
     parser.add_argument('--max-num-epochs', type=int, default=200)
     parser.add_argument('--reduction', type=str, default='mean', choices=['sum', 'mean', 'max', 'min', 'none'])
-    parser.add_argument('--activation-fn', type=str, default='relu')
+    parser.add_argument('--act-fn', type=str, default='relu')
     parser.add_argument('--skip-connection', action='store_true', default=False)
     args = parser.parse_args()
 
@@ -135,7 +138,8 @@ if __name__ == "__main__":
     print('────────────────────────────────────────')
 
     print(subprocess.check_output(['pip', 'freeze']).decode('utf-8').strip())
-    print('args = %s' % json.dumps(vars(args), sort_keys=True, indent=4))
+    kwargs = vars(args)
+    print('args = %s' % json.dumps(kwargs, sort_keys=True, indent=4))
 
 
     def set_seed(seed):
@@ -148,5 +152,6 @@ if __name__ == "__main__":
 
     # ensure reproducibility (?)
     set_seed(args.seed)
+    del kwargs['seed']
 
-    main(args)
+    main(vars(args))
