@@ -22,6 +22,7 @@ def hash_args(args_dict, no_hash):
 
 
 def main(**kwargs):
+    kwargs['act_fn'] = getattr(torch.nn.functional, args.act_fn)
     max_num_epochs = kwargs['max_num_epochs']
     del kwargs['max_num_epochs']
 
@@ -126,7 +127,7 @@ if __name__ == "__main__":
         old_print(*args, **kwargs)
         kwargs['file'] = LOG_FILE
         old_print(*args, **kwargs)
-    
+
     builtins.print = new_print
 
     print('writing log to `%s`' % LOG_PATH)
@@ -154,4 +155,4 @@ if __name__ == "__main__":
     set_seed(args.seed)
     del kwargs['seed']
 
-    main(vars(args))
+    main(**kwargs)

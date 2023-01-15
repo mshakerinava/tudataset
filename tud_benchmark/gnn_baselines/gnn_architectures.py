@@ -64,6 +64,10 @@ class GraphConv(nn.Module):
             self.lin_on = nn.Linear(in_channels, out_channels)
             self.lin_off = nn.Linear(in_channels, out_channels)
 
+    def reset_parameters(self):
+        self.lin_on.reset_parameters()
+        self.lin_off.reset_parameters()
+
     # TODO: self-loops, edge types, isolated nodes
     def forward(self, x, edge_index):
         n = torch.max(edge_index) + 1
